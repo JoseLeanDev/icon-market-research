@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Icon Capital — Markets Research Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --bg-elev: #FFFFFF;
+    --ink: #15171A;
+    --ink-2: #4A4F57;
+    --ink-3: #8A8F98;
+    --line: #E8E5DE;
+    --line-2: #F0EDE6;
+    --accent: #1F4D3A;
+    --accent-soft: #E8F0EC;
+    --watch: #C2761A;
+    --watch-soft: #FBF1E2;
+    --critical: #B43A3A;
+    --critical-soft: #FAEBEB;
+    --info-soft: #EEF2FF;
+    --info: #3B5BDB;
+    --pos: #1F7A4D;
+    --neg: #B43A3A;
+    --flat: #8A8F98;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 32px 48px 80px; }
+
+  /* HEADER */
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 36px;
+  }
+  .brand-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-3); font-weight: 600; margin-bottom: 4px; }
+  .brand-title { font-family: 'Source Serif 4', Georgia, serif; font-size: 34px; font-weight: 700; letter-spacing: -0.025em; color: var(--ink); margin: 0; }
+  .meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+  .meta-sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
+
+  /* HERO */
+  .hero {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 4px;
+    padding: 40px 44px;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: 'DIGEST';
+    position: absolute; top: 36px; right: 44px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.2em; color: rgba(255,255,255,0.2);
+  }
+  .hero-date { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
+  .hero-headline { font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1.3; font-weight: 600; color: #fff; margin: 0 0 16px; max-width: 820px; }
+  .hero-summary { color: rgba(255,255,255,0.75); font-size: 15px; line-height: 1.65; max-width: 780px; margin-bottom: 24px; }
+  .hero-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .hero-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; padding: 4px 9px; border-radius: 2px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); letter-spacing: 0.06em; }
+  .hero-severity { background: rgba(194,118,26,0.3); color: #F0A940; }
+
+  /* SECTION HEADERS */
+  .section-hdr {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 16px; margin-top: 40px;
+  }
+  .section-hdr:first-of-type { margin-top: 0; }
+  h2.sh { font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-weight: 600; color: var(--ink); margin: 0; }
+  .sh-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
+
+  /* ALERTS */
+  .alerts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 8px; }
+  .alert-card {
+    background: var(--bg-elev); border: 1px solid var(--line);
+    border-left: 3px solid var(--ink-3);
+    border-radius: 4px; padding: 18px 20px;
+    transition: box-shadow 0.15s;
+  }
+  .alert-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .alert-card.critical { border-left-color: var(--critical); background: var(--critical-soft); }
+  .alert-card.watch { border-left-color: var(--watch); background: var(--watch-soft); }
+  .alert-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
+  .sev-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 2px;
+  }
+  .sev-badge.critical { background: var(--critical); color: #fff; }
+  .sev-badge.watch { background: var(--watch); color: #fff; }
+  .sev-badge.info { background: var(--info); color: #fff; }
+  .alert-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
+  .alert-title { font-weight: 600; font-size: 14px; line-height: 1.4; color: var(--ink); margin: 0 0 6px; }
+  .alert-summary { font-size: 13px; line-height: 1.55; color: var(--ink-2); }
+
+  /* MACRO STRIP */
+  .macro-strip {
+    display: grid; grid-template-columns: repeat(8, 1fr);
+    background: var(--bg-elev); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+  }
+  .macro-cell {
+    padding: 16px 18px; border-right: 1px solid var(--line-2);
+  }
+  .macro-cell:last-child { border-right: none; }
+  .macro-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-3); font-weight: 600; margin-bottom: 7px; }
+  .macro-value { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 4px; }
+  .macro-delta { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; }
+  .macro-delta.pos { color: var(--pos); }
+  .macro-delta.neg { color: var(--neg); }
+  .macro-delta.flat { color: var(--flat); }
+
+  /* TIMELINE */
+  .tl-controls { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .chip {
+    background: var(--bg-elev); border: 1px solid var(--line); border-radius: 3px;
+    padding: 5px 12px; font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-2); cursor: pointer; transition: all 0.12s; user-select: none;
+  }
+  .chip:hover { border-color: var(--ink-3); }
+  .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .tl-search {
+    flex: 1; min-width: 200px; background: var(--bg-elev);
+    border: 1px solid var(--line); border-radius: 3px; padding: 5px 12px;
+    font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--ink); outline: none;
+  }
+  .tl-search:focus { border-color: var(--accent); }
+  .timeline { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+  .tl-row {
+    display: grid; grid-template-columns: 110px 80px 1fr;
+    gap: 20px; padding: 18px 24px;
+    border-bottom: 1px solid var(--line-2); cursor: pointer;
+    transition: background 0.12s; align-items: start;
+  }
+  .tl-row:hover { background: var(--bg); }
+  .tl-row:last-child { border-bottom: none; }
+  .tl-row.expanded { background: var(--bg); }
+  .tl-time .tl-date { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .tl-time .tl-hour { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-3); }
+  .row-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 7px; border-radius: 2px;
+    width: fit-content; align-self: start;
+  }
+  .row-badge.digest { background: var(--accent-soft); color: var(--accent); }
+  .row-badge.alert.critical { background: var(--critical); color: #fff; }
+  .row-badge.alert.watch { background: var(--watch-soft); color: var(--watch); }
+  .tl-headline { font-weight: 600; font-size: 14px; color: var(--ink); line-height: 1.4; margin-bottom: 5px; }
+  .tl-summary { font-size: 13px; color: var(--ink-2); line-height: 1.55; margin-bottom: 8px; }
+  .tl-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tl-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-3); padding: 2px 6px; border: 1px solid var(--line); border-radius: 2px; }
+  .tl-full {
+    display: none; margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid var(--line-2);
+    grid-column: 1 / -1;
+    font-size: 13px; line-height: 1.7; color: var(--ink-2);
+  }
+  .tl-full.open { display: block; }
+  .tl-full h3 { font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; color: var(--ink); margin: 16px 0 8px; }
+  .tl-full h3:first-child { margin-top: 0; }
+  .tl-full table { width: 100%; border-collapse: collapse; margin: 10px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .tl-full th { text-align: left; padding: 6px 10px; background: var(--line-2); color: var(--ink-2); font-weight: 600; border: 1px solid var(--line); }
+  .tl-full td { padding: 6px 10px; border: 1px solid var(--line); color: var(--ink); }
+  .tl-full p { margin: 0 0 10px; }
+  .tl-full ul, .tl-full ol { margin: 0 0 10px; padding-left: 20px; }
+  .tl-full strong { color: var(--ink); font-weight: 600; }
+  .tl-full em { font-style: italic; }
+  .expand-hint { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-3); margin-top: 6px; }
+
+  /* FOOTER */
+  footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; color: var(--ink-3); font-size: 12px; }
+  footer .f-sources { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    background: var(--info-soft); border: 1px solid #C5D0FA; border-radius: 3px;
+    padding: 10px 16px; margin-bottom: 36px;
+    font-size: 12px; color: var(--info); line-height: 1.5;
+  }
+
+  @media (max-width: 900px) {
+    .container { padding: 20px 18px 60px; }
+    header.top { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .meta { align-items: flex-start; }
+    .macro-strip { grid-template-columns: repeat(4,1fr); }
+    .macro-cell { border-bottom: 1px solid var(--line-2); }
+    .tl-row { grid-template-columns: 1fr; gap: 8px; }
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 28px 24px; }
+    .hero-headline { font-size: 20px; }
+    .macro-strip { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="top">
+  <div>
+    <div class="brand-eyebrow">Icon Capital · Private Equity</div>
+    <h1 class="brand-title">Markets Research</h1>
+  </div>
+  <div class="meta">
+    <span class="live-badge"><span class="dot"></span>Demo Mode</span>
+    <span class="meta-sub" id="last-updated">Updated · May 12, 2026 · 7:02am ET</span>
+    <span class="meta-sub">FRED · BLS · FED · EDGAR · REUTERS/BLOOMBERG</span>
+  </div>
+</header>
+
+<div class="disclaimer">
+  <strong>Demo build</strong> — data below is illustrative, showing the format Icon Capital's live agent will produce once API credentials are configured and the agent is activated.
+</div>
+
+<!-- HERO -->
+<div class="hero" id="hero">
+  <div class="hero-date">Daily Digest · Monday, May 12, 2026</div>
+  <h2 class="hero-headline">CPI Holds Above Target; Fed Signals Patience — Rate Cuts Pushed to Q4</h2>
+  <p class="hero-summary">April CPI came in at 2.8% YoY, 0.2pp above consensus, reinforcing the Fed's data-dependent stance and pushing market expectations for the first cut to November. The 10Y-2Y spread widened to +26bps as short-end yields pulled back on soft labor data. Knighthead Capital filed a new 13F showing a significant new position in energy infrastructure.</p>
+  <div class="hero-footer">
+    <span class="hero-tag">FRED</span>
+    <span class="hero-tag">BLS</span>
+    <span class="hero-tag">FED</span>
+    <span class="hero-tag">EDGAR</span>
+    <span class="hero-tag">NEWS</span>
+    <span class="hero-tag hero-severity">⚠ WATCH</span>
+  </div>
+</div>
+
+<!-- ACTIVE ALERTS -->
+<div class="section-hdr">
+  <h2 class="sh">Active Alerts</h2>
+  <span class="sh-meta">Last 7 days · 2 events</span>
+</div>
+<div class="alerts-grid">
+  <div class="alert-card critical">
+    <div class="alert-meta">
+      <span class="sev-badge critical">Critical</span>
+      <span class="alert-time">May 8 · 8:31am ET</span>
+    </div>
+    <div class="alert-title">April CPI +2.8% YoY — Beats Consensus 2.6%, Rate-Cut Timeline Shifts</div>
+    <div class="alert-summary">BLS released April CPI at 2.8% YoY and 0.3% MoM — above the 2.6%/0.2% consensus. Core CPI at 3.1%. Fed Funds futures repriced: June cut probability fell from 18% to 4%. November now market consensus for first cut.</div>
+  </div>
+  <div class="alert-card watch">
+    <div class="alert-meta">
+      <span class="sev-badge watch">Watch</span>
+      <span class="alert-time">May 9 · 1:47pm ET</span>
+    </div>
+    <div class="alert-title">Powell (Chicago): Services Inflation "Stickier Than Anticipated"</div>
+    <div class="alert-summary">Fed Chair Powell at Chicago Economic Club flagged services inflation as persistently sticky, repeated data-dependent framing, offered no rate-path guidance. 2Y yields fell 8bps as July cut priced out. Tone: moderately hawkish vs prior speech.</div>
+  </div>
+</div>
+
+<!-- MACRO SNAPSHOT -->
+<div class="section-hdr">
+  <h2 class="sh">Macro Snapshot</h2>
+  <span class="sh-meta">via FRED · as of May 12, 2026</span>
+</div>
+<div class="macro-strip">
+  <div class="macro-cell">
+    <div class="macro-label">CPI YoY</div>
+    <div class="macro-value">2.8%</div>
+    <div class="macro-delta neg">▲ +0.1pp</div>
+  </div>
+  <div class="macro-cell">
+    <div class="macro-label">Core CPI YoY</div>
+    <div class="macro-value">3.1%</div>
+    <div class="macro-delta neg">▲ +0.1pp</div>
+  </div>
+  <div class="macro-cell">
+    <div class="macro-label">Unemployment</div>
+    <div class="macro-value">4.1%</div>
+    <div class="macro-delta pos">▼ -0.1pp</div>
+  </div>
+  <div class="macro-cell">
+    <div class="macro-label">Fed Funds</div>
+    <div class="macro-value">4.50%</div>
+    <div class="macro-delta flat">— flat</div>
+  </div>
+  <div class="macro-cell">
+    <div class="macro-label">10Y Treasury</div>
+    <div class="macro-value">4.42%</div>
+    <div class="macro-delta neg">▲ +7bps</div>
+  </div>
+  <div class="macro-cell">
+    <div class="macro-label">2Y Treasury</div>
+    <div class="macro-value">4.16%</div>
+    <div class="macro-delta pos">▼ -12bps</div>
+  </div>
+  <div class="macro-cell">
+    <div class="macro-label">10Y-2Y Spread</div>
+    <div class="macro-value">+26bps</div>
+    <div class="macro-delta pos">▲ +19bps</div>
+  </div>
+  <div class="macro-cell">
+    <div class="macro-label">WTI Crude</div>
+    <div class="macro-value">$72.40</div>
+    <div class="macro-delta pos">▲ +0.8%</div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div class="section-hdr">
+  <h2 class="sh">Research History</h2>
+  <span class="sh-meta" id="count-label">4 entries · click any row to expand</span>
+</div>
+<div class="tl-controls">
+  <button class="chip active" data-filter="all">All</button>
+  <button class="chip" data-filter="digest">Digests</button>
+  <button class="chip" data-filter="alert">Alerts</button>
+  <button class="chip" data-filter="critical">Critical only</button>
+  <input class="tl-search" placeholder="Search headline, ticker, source…" id="tl-search">
+</div>
+<div class="timeline" id="timeline">
+
+  <!-- ROW 1 — Digest May 12 -->
+  <div class="tl-row" data-type="digest" data-severity="watch" data-text="cpi fed signals patience rate cuts q4 fred bls fed edgar news spx tlt dff cl knighthead digest watch">
+    <div class="tl-time">
+      <div class="tl-date">May 12</div>
+      <div class="tl-hour">07:02 ET</div>
+    </div>
+    <div class="row-badge digest">Digest</div>
+    <div>
+      <div class="tl-headline">CPI Holds Above Target; Fed Signals Patience — Rate Cuts Pushed to Q4</div>
+      <div class="tl-summary">April CPI at 2.8% YoY beats consensus; 10Y-2Y spread +26bps; Knighthead files new 13F with energy infrastructure position. Rate-cut timeline pushed to November.</div>
+      <div class="tl-tags">
+        <span class="tl-tag">FRED</span><span class="tl-tag">BLS</span><span class="tl-tag">FED</span><span class="tl-tag">EDGAR</span><span class="tl-tag">NEWS</span>
+        <span class="tl-tag">SPX</span><span class="tl-tag">TLT</span><span class="tl-tag">DFF</span>
+      </div>
+      <div class="expand-hint">▸ Click to read full analysis</div>
+      <div class="tl-full" id="full-0">
+        <h3>Top Line</h3>
+        <p>April CPI surprised to the upside at 2.8% YoY (+0.2pp vs consensus), cementing the Fed's "higher for longer" posture and pushing the first rate-cut expectation to November at the earliest.</p>
+        <h3>Macro Snapshot</h3>
+        <table><tr><th>Indicator</th><th>Current</th><th>Prior</th><th>Δ</th></tr>
+          <tr><td>CPI YoY</td><td>2.8%</td><td>2.7%</td><td>+0.1pp</td></tr>
+          <tr><td>Core CPI YoY</td><td>3.1%</td><td>3.0%</td><td>+0.1pp</td></tr>
+          <tr><td>Unemployment</td><td>4.1%</td><td>4.2%</td><td>-0.1pp</td></tr>
+          <tr><td>Fed Funds</td><td>4.25–4.50%</td><td>4.25–4.50%</td><td>flat</td></tr>
+          <tr><td>10Y Treasury</td><td>4.42%</td><td>4.35%</td><td>+7bps</td></tr>
+          <tr><td>2Y Treasury</td><td>4.16%</td><td>4.28%</td><td>-12bps</td></tr>
+          <tr><td>10Y-2Y Spread</td><td>+26bps</td><td>+7bps</td><td>+19bps</td></tr>
+          <tr><td>WTI Crude</td><td>$72.40</td><td>$71.80</td><td>+0.8%</td></tr>
+        </table>
+        <h3>Fed Watch</h3>
+        <p>Powell delivered remarks on May 9 at the Chicago Economic Club. Key tone: <strong>moderately hawkish</strong>. Reiterated "data dependent" stance, explicitly referenced services inflation as "stickier than anticipated." No forward guidance offered on rate path. Next FOMC: June 17–18 (no change expected).</p>
+        <h3>Portfolio Activity — 13F Update</h3>
+        <p><strong>Knighthead Capital Management</strong> filed 13F-HR on May 8 (Q1 2026). Notable: new position in $MMP (Magellan Midstream, energy infrastructure) representing ~4.2% of reported portfolio. Exited $BMRN (BioMarin Pharma). Top-10 holdings unchanged vs Q4 2025.</p>
+        <p><strong>Apex Capital</strong> — Q1 13F due by May 15. No filing yet.</p>
+        <h3>News Flow</h3>
+        <ul>
+          <li><strong>Bloomberg</strong> — "Fed Officials See No Rush to Cut as Services Inflation Persists" (May 11) — reinforces base case of November first cut</li>
+          <li><strong>Reuters</strong> — "Energy Infrastructure M&amp;A Pipeline Builds as Rates Stabilize" (May 10) — relevant to Knighthead's new MMP position</li>
+          <li><strong>FT</strong> — "Private Credit Spreads Compress to Post-2022 Tights" (May 9) — watch for vintage-risk in direct lending</li>
+          <li><strong>WSJ</strong> — "Retail Sales Beat Estimates; Consumer Still Resilient" (May 8) — soft landing thesis holding</li>
+        </ul>
+        <h3>Implication for Icon Capital</h3>
+        <p>The rate environment is stable but cut-timeline risk remains. Energy infrastructure aligns with a higher-for-longer world where hard assets outperform. Monitor Apex's Q1 filing (due May 15) for any directional shift.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2 — Alert Watch May 9 -->
+  <div class="tl-row" data-type="alert" data-severity="watch" data-text="powell chicago hawkish services inflation stickier fed news dff dgs2 dgs10 alert watch">
+    <div class="tl-time">
+      <div class="tl-date">May 9</div>
+      <div class="tl-hour">13:47 ET</div>
+    </div>
+    <div class="row-badge alert watch">⚠ Watch</div>
+    <div>
+      <div class="tl-headline">Powell (Chicago, May 9): Hawkish Tilt — Services Inflation "Stickier Than Anticipated"</div>
+      <div class="tl-summary">Powell flagged services inflation as persistently sticky, repeated data-dependent framing, no rate-path guidance. 2Y yields fell 8bps pricing out July cut. Moderately hawkish vs prior speech.</div>
+      <div class="tl-tags"><span class="tl-tag">FED</span><span class="tl-tag">NEWS</span><span class="tl-tag">DFF</span><span class="tl-tag">DGS2</span></div>
+      <div class="expand-hint">▸ Click to read full analysis</div>
+      <div class="tl-full" id="full-1">
+        <h3>What Happened</h3>
+        <p>Fed Chair Jerome Powell delivered prepared remarks and took Q&amp;A at the Chicago Economic Club. Key phrases flagged: <em>"services inflation stickier than anticipated"</em>, <em>"patient approach to policy normalization"</em>, <em>"no pre-set path for rates."</em></p>
+        <h3>Why It Matters for Icon Capital</h3>
+        <p>This confirms our base case: no cuts before Q4 2026 at the earliest. For PE portfolio companies with floating-rate debt, this extends the refinancing pressure window by ~2 quarters vs prior expectations. Direct lending positions benefit from continued elevated coupons; however, watch for credit quality deterioration in leveraged buyout vintages 2021–2022.</p>
+        <p><strong>Source:</strong> <a href="https://www.federalreserve.gov/newsevents/speech/powell20260509a.htm" target="_blank" rel="noopener">federalreserve.gov · Powell speech May 9</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3 — Alert Critical May 8 -->
+  <div class="tl-row" data-type="alert" data-severity="critical" data-text="critical april cpi bls 2.8% beats consensus rate cut timeline shifts bls fred news cpi dff tlt spx alert critical">
+    <div class="tl-time">
+      <div class="tl-date">May 8</div>
+      <div class="tl-hour">13:31 ET</div>
+    </div>
+    <div class="row-badge alert critical">🔴 Critical</div>
+    <div>
+      <div class="tl-headline">CRITICAL: April CPI +2.8% YoY — Beats Consensus 2.6%, Rate-Cut Timeline Shifts</div>
+      <div class="tl-summary">BLS released April CPI at 2.8% YoY and 0.3% MoM, above consensus. Core CPI 3.1%. June cut probability fell 18% → 4%. November now market consensus for first cut.</div>
+      <div class="tl-tags"><span class="tl-tag">BLS</span><span class="tl-tag">FRED</span><span class="tl-tag">NEWS</span><span class="tl-tag">CPI</span><span class="tl-tag">TLT</span></div>
+      <div class="expand-hint">▸ Click to read full analysis</div>
+      <div class="tl-full" id="full-2">
+        <h3>What Happened</h3>
+        <ul>
+          <li><strong>Headline CPI:</strong> +2.8% YoY (+0.3% MoM) — consensus 2.6% / 0.2%</li>
+          <li><strong>Core CPI (ex food &amp; energy):</strong> +3.1% YoY — consensus 3.0%</li>
+          <li><strong>Shelter:</strong> +0.4% MoM (still sticky)</li>
+          <li><strong>Services ex-energy:</strong> +4.0% YoY (up from 3.8%)</li>
+        </ul>
+        <h3>Market Reaction (first 30 min)</h3>
+        <ul>
+          <li>2Y Treasury: +14bps → 4.42%</li>
+          <li>10Y Treasury: +9bps → 4.44%</li>
+          <li>S&amp;P 500: -0.9%</li>
+          <li>Fed Funds futures June meeting: cut probability 18% → 4%</li>
+        </ul>
+        <h3>Why It Matters for Icon Capital</h3>
+        <p>Higher-for-longer confirmed for at least 2 more quarters. Implications: (1) portfolio company debt service costs remain elevated — flag 2021–2022 LBO vintage names with floating-rate exposure; (2) real estate assets with cap-rate sensitivity face continued pressure; (3) energy/infrastructure (hard assets) continue to look attractive as inflation hedge.</p>
+        <p><strong>Source:</strong> <a href="https://www.bls.gov/news.release/cpi.nr0.htm" target="_blank" rel="noopener">bls.gov · CPI Release</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 4 — Digest May 5 -->
+  <div class="tl-row" data-type="digest" data-severity="info" data-text="jobs friday payrolls 178k unemployment 4.2% soft landing intact bls fred news payems unrate spx digest info">
+    <div class="tl-time">
+      <div class="tl-date">May 5</div>
+      <div class="tl-hour">07:04 ET</div>
+    </div>
+    <div class="row-badge digest">Digest</div>
+    <div>
+      <div class="tl-headline">Jobs Friday: Payrolls +178K, Unemployment 4.2% — Soft Landing Intact</div>
+      <div class="tl-summary">April nonfarm payrolls +178K (consensus +185K); unemployment ticked up to 4.2%. Wage growth 3.9% YoY — cooling but not alarming. Soft landing thesis holds.</div>
+      <div class="tl-tags"><span class="tl-tag">BLS</span><span class="tl-tag">FRED</span><span class="tl-tag">NEWS</span><span class="tl-tag">PAYEMS</span><span class="tl-tag">UNRATE</span></div>
+      <div class="expand-hint">▸ Click to read full analysis</div>
+      <div class="tl-full" id="full-3">
+        <h3>Top Line</h3>
+        <p>April payrolls soft at +178K vs +185K expected; unemployment ticked up 0.1pp to 4.2%. Benign print — neither hot enough to worry the Fed nor cold enough to revive cut expectations. Soft landing intact.</p>
+        <h3>Macro Snapshot</h3>
+        <table><tr><th>Indicator</th><th>Current</th><th>Prior</th><th>Δ</th></tr>
+          <tr><td>Nonfarm Payrolls</td><td>+178K</td><td>+210K</td><td>-32K</td></tr>
+          <tr><td>Unemployment</td><td>4.2%</td><td>4.1%</td><td>+0.1pp</td></tr>
+          <tr><td>Avg Hourly Earnings YoY</td><td>3.9%</td><td>4.1%</td><td>-0.2pp</td></tr>
+          <tr><td>Labor Force Participation</td><td>62.6%</td><td>62.6%</td><td>flat</td></tr>
+        </table>
+        <h3>Fed Watch</h3>
+        <p>No speeches this week. Next FOMC: June 17–18. Market implied probability of June cut: 18% (prior to next week's CPI).</p>
+        <h3>News Flow</h3>
+        <ul>
+          <li><strong>Bloomberg</strong> — "Jobs Market Shows Signs of Cooling Without Breaking" (May 2) — constructive backdrop for PE exits</li>
+          <li><strong>Reuters</strong> — "Private Equity Secondaries Hit Record Volume in Q1 2026" (May 3) — liquidity improving</li>
+          <li><strong>FT</strong> — "European Central Bank Cuts Again; Divergence with Fed Widens" (May 1) — USD strength headwind for multi-nationals</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /timeline -->
+
+<footer>
+  <div>Icon Capital Partners · Markets Research Agent · v1.0 Demo</div>
+  <div class="f-sources">SOURCES: FRED · BLS · FEDERALRESERVE.GOV · SEC EDGAR · BLOOMBERG/REUTERS</div>
+</footer>
+
+</div><!-- /container -->
+
+<script>
+  // Filter + search
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      filter();
+    });
+  });
+  document.getElementById('tl-search').addEventListener('input', filter);
+
+  function filter() {
+    const f = document.querySelector('.chip.active').dataset.filter;
+    const q = document.getElementById('tl-search').value.toLowerCase().trim();
+    let visible = 0;
+    document.querySelectorAll('.tl-row').forEach(row => {
+      let show = true;
+      if (f === 'digest' && row.dataset.type !== 'digest') show = false;
+      if (f === 'alert' && row.dataset.type !== 'alert') show = false;
+      if (f === 'critical' && row.dataset.severity !== 'critical') show = false;
+      if (q && !row.dataset.text.includes(q)) show = false;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('count-label').textContent = visible + ' entries · click any row to expand';
+  }
+
+  // Expand/collapse rows
+  document.querySelectorAll('.tl-row').forEach((row, i) => {
+    row.addEventListener('click', () => {
+      const full = document.getElementById('full-' + i);
+      if (!full) return;
+      const open = full.classList.toggle('open');
+      row.classList.toggle('expanded', open);
+      row.querySelector('.expand-hint').textContent = open ? '▾ Click to collapse' : '▸ Click to read full analysis';
+    });
+  });
+</script>
+</body>
+</html>
